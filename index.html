@@ -1,141 +1,60 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="ja">
 <head>
   <meta charset="utf-8">
-
-  <!-- Load camera library -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
-  <!-- Load drawing library -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-
-  <!-- Load hand shape recognition library -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JFingerspell Capture</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js" crossorigin="anonymous"></script>
 </head>
-
-<body>
-  MediaPipe Hand Tracking
-  <button id="start">start</button>
-  <button id="stop">stop</button>
-
-  
-  file name(d-dd):
-  <input type="text" id="fileName" value="1-01" size="5" maxlength="5">
-
-  <button id="download">download</button>
-
-  <div class="container">
-    
-    <canvas id="output" width="1280" height="720"></canvas>
-
-  
-    <video id="input"></video>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">JFingerspell Capture</h1>
+    <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="userId">
+          ユーザーID:
+        </label>
+        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="userId" type="text" required>
+      </div>
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="kana">
+          撮影する指文字:
+        </label>
+        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="kana">
+          <option value="あ">あ</option>
+          <option value="い">い</option>
+          <option value="う">う</option>
+          <!-- 他のひらがなオプションを追加 -->
+        </select>
+      </div>
+      
+    </div>
+    <div class="bg-white shadow-md rounded p-4 mb-4">
+      <video id="input" style="display: none;"></video>
+      <canvas id="output" width="640" height="480" class="mx-auto"></canvas>
+    </div>
+    <div id="preview" class="text-center text-lg font-semibold text-green-600 mb-4"></div>
+    <div class="flex items-center justify-between">
+      <button id="start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        開始
+      </button>
+      <button id="stop" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        停止
+      </button>
+      <button id="capture" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        キャプチャ
+      </button>
+      <button id="downloadZip" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        ZIPでダウンロード
+      </button>
+    </div>
+    <div id="captureList" class="bg-white shadow-md rounded p-4"></div>
   </div>
+  <script src="script.js"></script>
 </body>
-
-<script type="module">
-  
-  const video = document.getElementById('input');
-  const canvas = document.getElementById('output');
-  const ctx = canvas.getContext('2d');
-
-  
-  var recording = false;
-
-  
-  const hands = new Hands({
-    locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    }
-  });
-
-
-  const camera = new Camera(video, {
-    onFrame: async () => {
-      await hands.send({image: video});
-    },
-    width: 1280,
-    height: 720
-  });
-
-  
-  hands.setOptions({
-    maxNumHands: 2,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
-  });
-
-  
-  hands.onResults(results => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
-
-    if (results.multiHandLandmarks) {
-      results.multiHandLandmarks.forEach(landmarks => {
-        // Visualize the skeleton with green lines
-        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
-
-        // Visualize Landmarks in red
-        drawLandmarks(ctx, landmarks, {color: '#FF0000', lineWidth: 1});
-
-        ctx.font = '16px serif';
-        landmarks.forEach((e, i) => {
-          // Draw the index of Landmarks
-          ctx.fillText(i, e.x * canvas.width, e.y * canvas.height);
-        });
-
-        if (recording) {
-          // Get the file name from the text box for file name input
-          let fileName = document.getElementById("fileName").value;
-          // Prepare to create a csv(comma separated values) file
-          let csvContent = "data:text/csv;charset=utf-8,";
-          // Create the header of the csv
-          csvContent += "index,x,y,z\n";
-          
-          landmarks.forEach((e, i) => {
-            csvContent += `${i},${e.x},${e.y},${e.z}\n`;
-          });
-        
-          console.log(csvContent);
-        
-          var encodedUri = encodeURI(csvContent);
-          var link = document.createElement("a");
-          link.setAttribute("href", encodedUri);
-          link.setAttribute("download", fileName + ".csv");
-          document.body.appendChild(link);
-          
-          link.click();
-
-               
-          let result = fileName.split("-");
-          result[1] = String(Number(result[1]) + 1).padStart(2, '0');
-          fileName = result.join("-");
-          console.log(fileName);
-          document.getElementById("fileName").value = fileName;
-
-    
-          recording = false;
-        }
-      });
-    }
-  });
-
-
-  document.getElementById('start')
-    .addEventListener('click', () => camera.start());
-
-
-  document.getElementById('stop')
-    .addEventListener('click', () => camera.stop());
-
-  
-  document.getElementById('download')
-    .addEventListener('click', () => {recording = true;});
-
-  
-  camera.start();
-</script>
-
 </html>
