@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js" crossorigin="anonymous"></script>
 </head>
+
 <body class="bg-gray-100 font-sans">
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-center mb-8">JFingerspell Capture</h1>
@@ -19,27 +21,31 @@
         <label class="block text-gray-700 text-sm font-bold mb-2" for="userId">
           ユーザーID:
         </label>
-        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="userId" type="text" required>
+        <input
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="userId" type="text" required>
       </div>
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2" for="kana">
           撮影する指文字:
         </label>
-        <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="kana">
-          <option value="あ">あ</option>
-          <option value="い">い</option>
-          <option value="う">う</option>
-          <option value="え">え</option>
-          <option value="お">お</option>
-          <option value="か">か</option>
-          <option value="き">き</option>
-          <option value="く">く</option>
-          <option value="け">け</option>
-          <option value="こ">こ</option>
+        <select
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+          id="kana">
+          <option value="a">あ</option>
+          <option value="i">い</option>
+          <option value="u">う</option>
+          <option value="e">え</option>
+          <option value="o">お</option>
+          <option value="ka">か</option>
+          <option value="ki">き</option>
+          <option value="ku">く</option>
+          <option value="ke">け</option>
+          <option value="ko">こ</option>
           <!-- 他のひらがなオプションを追加 -->
         </select>
       </div>
-      
+
     </div>
     <div class="bg-white shadow-md rounded p-4 mb-4">
       <video id="input" style="display: none;"></video>
@@ -47,16 +53,20 @@
     </div>
     <div id="preview" class="text-center text-lg font-semibold text-green-600 mb-4"></div>
     <div class="flex items-center justify-between">
-      <button id="start" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <button id="start"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         開始
       </button>
-      <button id="stop" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <button id="stop"
+        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         停止
       </button>
-      <button id="capture" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <button id="capture"
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         キャプチャ
       </button>
-      <button id="downloadZip" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+      <button id="downloadZip"
+        class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
         ZIPでダウンロード
       </button>
     </div>
@@ -64,4 +74,5 @@
   </div>
   <script src="script.js"></script>
 </body>
+
 </html>
